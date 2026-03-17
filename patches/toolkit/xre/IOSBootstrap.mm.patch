@@ -312,7 +312,7 @@ index 1b7353a06393..d952e2c89e3f 100644
  static int ChildProcessInitImpl(int aArgc, char** aArgv) {
    auto bootstrap = mozilla::GetBootstrap();
    if (bootstrap.isErr()) {
-@@ -115,6 +395,43 @@ static int ChildProcessInitImpl(int aArgc, char** aArgv) {
+@@ -115,6 +395,46 @@ static int ChildProcessInitImpl(int aArgc, char** aArgv) {
        /* aRandomizeSmall */ !XRE_IsContentProcess());
  #endif
  
