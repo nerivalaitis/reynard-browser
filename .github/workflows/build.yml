@@ -45,6 +45,19 @@ jobs:
       - name: Apply Gecko patches
         run: ./tools/development/apply-patches.sh
 
+      - name: Select Xcode
+        run: |
+          XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | tail -1)
+          if [ -z "$XCODE_PATH" ]; then
+            echo "No Xcode.app found in /Applications" && exit 1
+          fi
+          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
+          echo "DEVELOPER_DIR=$XCODE_PATH/Contents/Developer" >> "$GITHUB_ENV"
+          xcrun --sdk iphoneos --show-sdk-path
+
+      - name: Set up Rust environment
+        run: echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
       - name: Build idevice
         run: ./tools/development/build-idevice.sh
 
