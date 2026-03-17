@@ -77,11 +77,11 @@ And Reynard also works on iOS 26!
 </table>
 
 ## Issues
-- The JIT backend for child processes is disabled, which means that the JS interpreter, JIT compiler, and WebAssembly are currently not available. As a result, performance will be slower on several sites and features requiring WebAssembly will not work.
-- Some POST request responses like dynamically loaded scripts and video streams are not fully delivered, which can cause Google reCAPTCHA to fail during loading or lead to stalled playback on YouTube. A workaround would be to set the user-agent string to a generic Firefox on Android one. I observed this behavior through debug logs and never fully understood it.
+- The JIT backend for child processes is disabled, which means that the JS interpreter, JIT compiler, and WebAssembly are currently not available. As a result, performance will be slower on several sites and features requiring WebAssembly will not work. JIT can be enabled in settings if you have a pairing file from a USB-connected Mac (via idevice).
+- Some POST request responses like dynamically loaded scripts and video streams are not fully delivered, which can cause Google reCAPTCHA to fail during loading or lead to stalled playback on YouTube. The user-agent string defaults to a generic Firefox on Android one as a workaround; this can be toggled in settings. The root cause is not fully understood.
 - On some websites that use `-apple-system` or `BlinkMacSystemFont`, the rendered text falls back to an overly thin SF UI variant.
 - Video playback has no sound output.
-- Child processes responsible for WebContent and Rendering crashes due to "fault hit memory shortage" quite frequently on devices such as the iPad Air 2 on iOS 15.
+- Child processes responsible for WebContent and Rendering crash due to "fault hit memory shortage" quite frequently on devices such as the iPad Air 2 on iOS 15. The JS heap is capped at 384 MB as a mitigation.
 
 ## Installation
 

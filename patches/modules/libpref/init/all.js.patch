@@ -2,13 +2,21 @@ diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
 index d0c4fc9575e9..be620b73ff34 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -67,6 +67,10 @@ pref("security.crash_tracking.js_load_1.maxCrashes", 1);
+@@ -67,6 +67,18 @@ pref("security.crash_tracking.js_load_1.maxCrashes", 1);
  
  pref("general.useragent.compatMode.firefox", false);
  
 +// REYNARD: Reduce GeckoView logging noise because the default "Debug" level
 +// just makes debugging near to impossible.
 +pref("geckoview.logging", "Warn");
++
++// REYNARD: Cap the SpiderMonkey heap and reduce empty-chunk retention to
++// prevent Gecko child-process memory budgets from being exhausted on
++// constrained devices such as the iPad Air 2 on iOS 15. Pages that genuinely
++// need more heap will OOM-kill only their content process rather than the
++// entire app.
++pref("javascript.options.mem.max", 384);
++pref("javascript.options.gc_max_empty_chunk_count", 2);
 +
  pref("general.config.obscure_value", 13); // for MCD .cfg files
  

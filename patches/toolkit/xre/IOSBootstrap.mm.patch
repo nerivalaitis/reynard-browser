@@ -312,7 +312,7 @@ index 1b7353a06393..d952e2c89e3f 100644
  static int ChildProcessInitImpl(int aArgc, char** aArgv) {
    auto bootstrap = mozilla::GetBootstrap();
    if (bootstrap.isErr()) {
-@@ -115,6 +395,38 @@ static int ChildProcessInitImpl(int aArgc, char** aArgv) {
+@@ -115,6 +395,43 @@ static int ChildProcessInitImpl(int aArgc, char** aArgv) {
        /* aRandomizeSmall */ !XRE_IsContentProcess());
  #endif
  
@@ -341,6 +341,14 @@ index 1b7353a06393..d952e2c89e3f 100644
 +      JS::DisableJitBackend();
 +    }
 +  } else {
++    // REYNARD: Close the JIT-ready fd so it is not leaked in non-JS child
++    // processes (Rendering, Networking). The parent already wrote the
++    // "disabled" byte via ReportChildProcessJITEnabled(), so the write end is
++    // gone; we just need to drop our read end.
++    if (gExecutableJITReadyFd != -1) {
++      close(gExecutableJITReadyFd);
++      gExecutableJITReadyFd = -1;
++    }
 +    fprintf(stderr,
 +            "REYNARD_DEBUG: DisableJitBackend from IOSBootstrap non-content child process, pid=%d\n",
 +            getpid());

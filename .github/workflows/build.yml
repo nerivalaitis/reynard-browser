@@ -8,6 +8,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: self-hosted
@@ -113,10 +117,13 @@ jobs:
           echo "engine_revision=$ENGINE_REVISION" >> $GITHUB_OUTPUT
 
       - name: Create nightly release
-        uses: andelf/nightly-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: nightly
+          name: Nightly
+          allowUpdates: true
+          removeArtifacts: true
           body: |
             **Build:** ${{ steps.version.outputs.current_build }}
             **Version:** ${{ steps.version.outputs.current_version }}
@@ -126,8 +133,7 @@ jobs:
             This is a nightly release [created automatically with GitHub Actions workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}).
 
             Before using this release, please read the installation instruction in the README at [#Installation](https://github.com/minh-ton/reynard-browser#installation).
-          files: |
-            ./dist/Reynard.ipa
+          artifacts: ./dist/Reynard.ipa
 
       - name: Clean up workspace
         if: always()
