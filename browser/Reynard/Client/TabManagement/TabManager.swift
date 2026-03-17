@@ -7,6 +7,7 @@
 
 import Foundation
 import GeckoView
+import UIKit
 
 protocol TabManager: AnyObject {
     var tabs: [Tab] { get }
@@ -33,15 +34,24 @@ enum TabManagerUpdateReason {
     case thumbnail
 }
 
+struct ContextMenuAction {
+    let title: String
+    let image: UIImage?
+    let style: UIAlertAction.Style
+    let handler: () -> Void
+}
+
 protocol TabManagerDelegate: AnyObject {
     func tabManagerDidChangeTabs(_ tabManager: TabManager)
     func tabManager(_ tabManager: TabManager, didSelectTabAt index: Int, previousIndex: Int?)
     func tabManager(_ tabManager: TabManager, didUpdateTabAt index: Int, reason: TabManagerUpdateReason)
     func tabManager(_ tabManager: TabManager, animateNewTabSelectionAt index: Int, completion: @escaping () -> Void)
+    func tabManager(_ tabManager: TabManager, presentContextMenuActions actions: [ContextMenuAction], title: String?)
 }
 
 extension TabManagerDelegate {
     func tabManager(_ tabManager: TabManager, animateNewTabSelectionAt index: Int, completion: @escaping () -> Void) {
         completion()
     }
+    func tabManager(_ tabManager: TabManager, presentContextMenuActions actions: [ContextMenuAction], title: String?) {}
 }

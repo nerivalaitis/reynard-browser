@@ -48,6 +48,7 @@ public protocol ContentDelegate {
     func onShowDynamicToolbar(session: GeckoSession)
     func onCookieBannerDetected(session: GeckoSession)
     func onCookieBannerHandled(session: GeckoSession)
+    func onExternalResponse(session: GeckoSession, uri: String, contentType: String?, contentLength: Int64, filename: String?)
 }
 
 extension ContentDelegate {
@@ -69,6 +70,7 @@ extension ContentDelegate {
     public func onShowDynamicToolbar(session: GeckoSession) {}
     public func onCookieBannerDetected(session: GeckoSession) {}
     public func onCookieBannerHandled(session: GeckoSession) {}
+    public func onExternalResponse(session: GeckoSession, uri: String, contentType: String?, contentLength: Int64, filename: String?) {}
 }
 
 enum ContentEvents: String, CaseIterable {
@@ -160,7 +162,25 @@ func newContentHandler(_ session: GeckoSession) -> GeckoSessionHandler {
             return nil
             
         case .externalResponse:
-            throw GeckoHandlerError("GeckoView:ExternalResponse is unimplemented")
+            let uri = message?["uri"] as? String ?? ""
+            let contentType = message?["contentType"] as? String
+            let contentLength: Int64
+            if let number = message?["contentLength"] as? NSNumber {
+                contentLength = number.int64Value
+            } else if let intValue = message?["contentLength"] as? Int64 {
+                contentLength = intValue
+            } else {
+                contentLength = 0
+            }
+            let filename = message?["filename"] as? String
+            delegate?.onExternalResponse(
+                session: session,
+                uri: uri,
+                contentType: contentType,
+                contentLength: contentLength,
+                filename: filename
+            )
+            return nil
             
         case .focusRequest:
             delegate?.onFocusRequest(session: session)

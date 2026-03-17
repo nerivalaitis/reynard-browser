@@ -205,7 +205,86 @@ extension TabManagerImplementation: ContentDelegate {
     
     func onProductUrl(session: GeckoSession) {}
     
-    func onContextMenu(session: GeckoSession, screenX: Int, screenY: Int, element: ContextElement) {}
+    func onContextMenu(session: GeckoSession, screenX: Int, screenY: Int, element: ContextElement) {
+        var actions: [ContextMenuAction] = []
+        var title: String? = nil
+
+        if let linkUri = element.linkUri, let linkURL = URL(string: linkUri) {
+            title = linkUri
+            actions.append(ContextMenuAction(
+                title: "Open in New Tab",
+                image: UIImage(systemName: "plus.square"),
+                style: .default
+            ) { [weak self] in
+                guard let self else { return }
+                let insertionIndex = self.tabIndex(for: session).map { $0 + 1 }
+                let index = self.addTab(selecting: false, at: insertionIndex)
+                let newTab = self.tabs[index]
+                self.browse(to: linkUri, in: newTab)
+                self.delegate?.tabManager(self, animateNewTabSelectionAt: index) { [weak self] in
+                    self?.selectTab(at: index)
+                }
+            })
+            actions.append(ContextMenuAction(
+                title: "Copy Link",
+                image: UIImage(systemName: "doc.on.doc"),
+                style: .default
+            ) {
+                UIPasteboard.general.string = linkUri
+            })
+            actions.append(ContextMenuAction(
+                title: "Download Linked File",
+                image: UIImage(systemName: "arrow.down.circle"),
+                style: .default
+            ) {
+                DownloadManager.shared.download(url: linkURL)
+            })
+        }
+
+        if element.type == .image, let srcUri = element.srcUri, let srcURL = URL(string: srcUri) {
+            if title == nil { title = srcUri }
+            actions.append(ContextMenuAction(
+                title: "Save Image",
+                image: UIImage(systemName: "square.and.arrow.down"),
+                style: .default
+            ) {
+                DownloadManager.shared.download(url: srcURL)
+            })
+            actions.append(ContextMenuAction(
+                title: "Copy Image Link",
+                image: UIImage(systemName: "doc.on.doc"),
+                style: .default
+            ) {
+                UIPasteboard.general.string = srcUri
+            })
+        }
+
+        if (element.type == .video || element.type == .audio),
+           let srcUri = element.srcUri, let srcURL = URL(string: srcUri) {
+            if title == nil { title = srcUri }
+            let label = element.type == .video ? "Download Video" : "Download Audio"
+            actions.append(ContextMenuAction(
+                title: label,
+                image: UIImage(systemName: "arrow.down.circle"),
+                style: .default
+            ) {
+                DownloadManager.shared.download(url: srcURL)
+            })
+        }
+
+        if let textContent = element.textContent, !textContent.isEmpty {
+            actions.append(ContextMenuAction(
+                title: "Copy",
+                image: UIImage(systemName: "doc.on.clipboard"),
+                style: .default
+            ) {
+                UIPasteboard.general.string = textContent
+            })
+        }
+
+        guard !actions.isEmpty else { return }
+        delegate?.tabManager(self, presentContextMenuActions: actions, title: title)
+    }
     
     func onCrash(session: GeckoSession) {
         guard let index = tabIndex(for: session) else {
@@ -238,6 +317,11 @@ extension TabManagerImplementation: ContentDelegate {
     func onCookieBannerDetected(session: GeckoSession) {}
     
     func onCookieBannerHandled(session: GeckoSession) {}
+
+    func onExternalResponse(session: GeckoSession, uri: String, contentType: String?, contentLength: Int64, filename: String?) {
+        guard let url = URL(string: uri) else { return }
+        DownloadManager.shared.download(url: url, suggestedFilename: filename)
+    }
 }
 
 extension TabManagerImplementation: NavigationDelegate {

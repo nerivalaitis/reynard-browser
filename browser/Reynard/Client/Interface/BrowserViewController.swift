@@ -369,10 +369,34 @@ final class BrowserViewController: UIViewController, AddressBarDelegate, PhoneTo
             completion()
             return
         }
-        
+
         addressBarGestures.animateAutomaticNewTabTransition(to: tabManager.tabs[index], completion: completion)
     }
-    
+
+    func tabManager(_ tabManager: TabManager, presentContextMenuActions actions: [ContextMenuAction], title: String?) {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .actionSheet)
+
+        for action in actions {
+            alert.addAction(UIAlertAction(title: action.title, style: action.style) { _ in
+                action.handler()
+            })
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = browserUI.geckoView
+            popover.sourceRect = CGRect(
+                x: browserUI.geckoView.bounds.midX,
+                y: browserUI.geckoView.bounds.midY,
+                width: 0,
+                height: 0
+            )
+        }
+
+        present(alert, animated: true)
+    }
+
     func backButtonClicked() {
         browserActions.goBack()
     }

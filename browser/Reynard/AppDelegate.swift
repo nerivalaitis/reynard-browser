@@ -5,12 +5,24 @@
 //  Created by Minh Ton on 1/2/26.
 //
 
+import AVFoundation
 import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        configureAudioSession()
         return true
+    }
+
+    private func configureAudioSession() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .moviePlayback)
+            try session.setActive(true)
+        } catch {
+            NSLog("Failed to configure audio session: \(error)")
+        }
     }
 
     // MARK: UISceneSession Lifecycle
