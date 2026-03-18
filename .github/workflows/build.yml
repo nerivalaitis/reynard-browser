@@ -47,11 +47,7 @@ jobs:
 
       - name: Select Xcode
         run: |
-          # Prefer stable Xcode (16.x) over beta; Mozilla may not support the latest beta toolchain
-          XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | grep -v beta | tail -1)
-          if [ -z "$XCODE_PATH" ]; then
-            XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | tail -1)
-          fi
+          XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | tail -1)
           if [ -z "$XCODE_PATH" ]; then
             echo "No Xcode.app found in /Applications" && exit 1
           fi
@@ -62,6 +58,11 @@ jobs:
 
       - name: Set up Rust environment
         run: echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Install LLVM lld linker
+        run: |
+          brew install llvm
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
 
       - name: Build idevice
         run: ./tools/development/build-idevice.sh
