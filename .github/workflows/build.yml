@@ -63,9 +63,9 @@ jobs:
         run: |
           brew install llvm
           LLVM_BIN="$(brew --prefix llvm)/bin"
-          ln -sf "$LLVM_BIN/ld.lld" /usr/local/bin/ld.lld
-          ln -sf "$LLVM_BIN/lld" /usr/local/bin/lld
-          ln -sf "$LLVM_BIN/ld64.lld" /usr/local/bin/ld64.lld
+          sudo ln -sf "$LLVM_BIN/ld.lld" /usr/local/bin/ld.lld
+          sudo ln -sf "$LLVM_BIN/lld" /usr/local/bin/lld
+          sudo ln -sf "$LLVM_BIN/ld64.lld" /usr/local/bin/ld64.lld
 
       - name: Build idevice
         run: ./tools/development/build-idevice.sh
