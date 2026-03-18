@@ -31,8 +31,5 @@ if ! rustup target list | grep -q "^$TARGET (installed)"; then
 	rustup target add "$TARGET"
 fi
 
-export SDKROOT
-SDKROOT="$(xcrun --sdk iphoneos --show-sdk-path)"
-
 cd "$FIREFOX_DIR"
 ./mach build
