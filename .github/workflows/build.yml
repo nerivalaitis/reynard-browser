@@ -47,10 +47,15 @@ jobs:
 
       - name: Select Xcode
         run: |
-          XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | tail -1)
+          # Prefer stable Xcode (16.x) over beta; Mozilla may not support the latest beta toolchain
+          XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | grep -v beta | tail -1)
+          if [ -z "$XCODE_PATH" ]; then
+            XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | tail -1)
+          fi
           if [ -z "$XCODE_PATH" ]; then
             echo "No Xcode.app found in /Applications" && exit 1
           fi
+          echo "Using $XCODE_PATH"
           sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
           echo "DEVELOPER_DIR=$XCODE_PATH/Contents/Developer" >> "$GITHUB_ENV"
           xcrun --sdk iphoneos --show-sdk-path
