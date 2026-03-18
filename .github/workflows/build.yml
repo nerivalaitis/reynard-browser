@@ -47,14 +47,18 @@ jobs:
 
       - name: Select Xcode
         run: |
+          echo "Available Xcode installations:"
+          find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V
           XCODE_PATH=$(find /Applications -maxdepth 1 -name 'Xcode*.app' | sort -V | tail -1)
           if [ -z "$XCODE_PATH" ]; then
             echo "No Xcode.app found in /Applications" && exit 1
           fi
-          echo "Using $XCODE_PATH"
+          echo "Selected: $XCODE_PATH"
           sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
           echo "DEVELOPER_DIR=$XCODE_PATH/Contents/Developer" >> "$GITHUB_ENV"
-          xcrun --sdk iphoneos --show-sdk-path
+          echo "xcode-select -p: $(xcode-select -p)"
+          echo "iOS SDK: $(xcrun --sdk iphoneos --show-sdk-path)"
+          echo "macOS SDK: $(xcrun --sdk macosx --show-sdk-path)"
 
       - name: Set up Rust environment
         run: echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
