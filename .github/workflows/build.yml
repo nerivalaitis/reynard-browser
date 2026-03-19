@@ -82,6 +82,9 @@ jobs:
           echo "Wrapper installed. Test --version:"
           "$TOOLCHAIN_BIN/ld" --version
 
+      - name: Install cbindgen
+        run: cargo install cbindgen
+
       - name: Build idevice
         run: ./tools/development/build-idevice.sh
 
