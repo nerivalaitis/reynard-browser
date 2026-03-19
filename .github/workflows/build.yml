@@ -68,11 +68,17 @@ jobs:
           brew install llvm
           LLVM_BIN="$(brew --prefix llvm)/bin"
           TOOLCHAIN_BIN="$(dirname "$(xcrun --find clang)")"
-          echo "Symlinking lld into $TOOLCHAIN_BIN"
-          sudo ln -sf "$LLVM_BIN/ld64.lld" "$TOOLCHAIN_BIN/ld64.lld"
-          sudo ln -sf "$LLVM_BIN/ld.lld" "$TOOLCHAIN_BIN/ld.lld"
-          sudo ln -sf "$LLVM_BIN/lld" "$TOOLCHAIN_BIN/lld"
-          echo "Verifying: $(ls -la "$TOOLCHAIN_BIN/ld64.lld")"
+          echo "=== LLVM bin contents (lld related) ==="
+          ls -la "$LLVM_BIN/" | grep -i lld || echo "No lld binaries found"
+          echo "=== Toolchain bin dir: $TOOLCHAIN_BIN ==="
+          sudo ln -sf "$LLVM_BIN/ld64.lld" "$TOOLCHAIN_BIN/ld64.lld" && echo "ld64.lld symlink OK" || echo "FAILED to create ld64.lld symlink"
+          sudo ln -sf "$LLVM_BIN/ld.lld"   "$TOOLCHAIN_BIN/ld.lld"   && echo "ld.lld symlink OK"   || echo "FAILED to create ld.lld symlink"
+          sudo ln -sf "$LLVM_BIN/lld"      "$TOOLCHAIN_BIN/lld"      && echo "lld symlink OK"      || echo "FAILED to create lld symlink"
+          echo "=== Verify symlinks ==="
+          ls -la "$TOOLCHAIN_BIN/ld64.lld" "$TOOLCHAIN_BIN/ld.lld" "$TOOLCHAIN_BIN/lld" || true
+          echo "=== Test: clang -fuse-ld=lld --version ==="
+          IOS_SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          /usr/bin/clang -isysroot "$IOS_SDK" -mios-version-min=14.0 --target=aarch64-apple-ios -fuse-ld=lld -Wl,--version 2>&1 || echo "EXIT CODE: $?"
 
       - name: Build idevice
         run: ./tools/development/build-idevice.sh
